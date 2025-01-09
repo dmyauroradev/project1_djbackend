@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <h1>Báo cáo thống kê</h1>
+
+    <canvas id="revenueChart" width="400" height="200"></canvas>
+    <canvas id="userChart" width="400" height="100"></canvas>
+    <canvas id="orderChart" width="400" height="50"></canvas>
+    <canvas id="topSellingChart" width="400" height="180"></canvas>
+    <canvas id="topUsersChart" width="400" height="100"></canvas>
+
+    <h2>Thống kê số lượng tồn kho từng sản phẩm</h2>
+    <h3>Tồn kho theo ngày</h3>
+    <div id="dailyProductStockStats"></div>
+
+    <h3>Tồn kho theo tháng</h3>
+    <div id="monthlyProductStockStats"></div>
+
+    <script>
+      function generateColors(count) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+          const r = Math.floor(Math.random() * 255);
+          const g = Math.floor(Math.random() * 255);
+          const b = Math.floor(Math.random() * 255);
+          colors.push(`rgba(${r}, ${g}, ${b}, 0.5)`);
+        }
+        return colors;
+      }
+      async function fetchData(url) {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+      }
+
+      async function createLineChart(canvasId, url, label) {
+        const ctx = document.getElementById(canvasId).getContext("2d");
+        const data = await fetchData(url);
+
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: data.labels,
+            datasets: [
+              {
+                label: label,
+                data: data.data,
+                borderColor: "rgba(75, 192, 192, 1)",
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            plugins: {
+              title: {
+                display: true,
+                text: label,
+                font: {
+                  size: 20,
+                  weight: "bold",
+                  family: "Arial, sans-serif",
+                },
+                align: "center",
+              },
+            },
+            scales: {
+              x: {
+                title: { display: true, text: "Tháng/Năm" },
+              },
+              y: {
+                title: { display: true, text: "Số lượng" },
+              },
+            },
+          },
+        });
+      }
+
+      async function createBarChart(canvasId, url, label) {
+        const ctx = document.getElementById(canvasId).getContext("2d");
+        const response = await fetchData(url);
+
+        console.log("Response data for", canvasId, response);
+
+        const labels = response.labels;
+        const colors = generateColors(response.datasets.length);
+        // Tạo datasets vs màu sắc động
+        const datasets = response.datasets.map((dataset, index) => ({
+          label: dataset.label,
+          data: dataset.data,
+          backgroundColor: colors[index],
+          borderColor: colors[index].replace("0.5", "1"),
+          borderWidth: 1,
+        }));
+
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: datasets,
+          },
+          options: {
+            scales: {
+              x: {
+                title: { display: true, text: "Tháng/Năm" },
+              },
+              y: {
+                title: { display: true, text: "Số lượng" },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: label,
+                font: {
+                  size: 20, // Kích thước tiêu đề
+                },
+              },
+              legend: { display: true }, // Hiển thị chú thích để phân biệt sản phẩm
+            },
+          },
+        });
+      }
+
+      // Gọi các hàm tạo biểu đồ
+      createLineChart("revenueChart", "/stats/api/stats/revenue/", "Doanh thu");
+      createLineChart("userChart", "/stats/api/stats/users/", "Người dùng mới");
+      createLineChart("orderChart", "/stats/api/stats/orders/", "Đơn đặt hàng");
+      createBarChart(
+        "topUsersChart",
+        "/stats/api/stats/top-users-by-orders/",
+        "Người dùng đặt hàng nhiều nhất"
+      );
+      createBarChart(
+        "topSellingChart",
+        "/stats/api/stats/top-selling/",
+        "Sản phẩm bán chạy"
+      );
+
+      async function fetchProductStockStats(url, elementId) {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // Tạo nội dung HTML từ dữ liệu
+        let htmlContent =
+          '<table border="1"><thead><tr><th>Thời gian</th><th>Sản phẩm</th><th>Số lượng tồn kho</th></tr></thead><tbody>';
+        data.forEach((item) => {
+          htmlContent += `<tr>
+              <td>${item.date || item.month}</td>
+              <td>${item.product}</td>
+              <td>${item.total_stock}</td>
+          </tr>`;
+        });
+        htmlContent += "</tbody></table>";
+
+        // Gắn vào phần tử
+        document.getElementById(elementId).innerHTML = htmlContent;
+      }
+
+      // Gọi API để hiển thị số liệu tồn kho
+      fetchProductStockStats(
+        "/stats/api/stats/daily-product-stock/?days=30",
+        "dailyProductStockStats"
+      );
+      fetchProductStockStats(
+        "/stats/api/stats/monthly-product-stock/?months=12",
+        "monthlyProductStockStats"
+      );
+    </script>
+  </body>
+</html>
