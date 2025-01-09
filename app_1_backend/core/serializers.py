@@ -12,7 +12,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Product
         fields = '__all__'
-        #extra_fields = ['url']
+        
 
     
 
