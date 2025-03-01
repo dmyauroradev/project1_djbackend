@@ -23,11 +23,6 @@ class Product(models.Model):
     stock_quantity = models.IntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now, blank=False)
     updated_at = models.DateTimeField(auto_now=True)
-    #brand = models.CharField(max_length=100)
-    #material = models.CharField(max_length=150)
-    #ecoFriendlyLevel = models.FloatField(blank=False, default=1.0)
-    #applications = models.CharField(max_length=200, default='None')
-    #style = models.CharField(max_length=100)
 
     def __str__(self) -> str:
         return self.title

@@ -20,7 +20,7 @@ class AddOrder(APIView):
 
     def post(self, request):
         data = request.data
-        print("Received data in Django:", data)  # Log received data
+        print("Received data in Django:", data) 
         print("Auth token:", request.auth)
         print("User:", request.user)
 

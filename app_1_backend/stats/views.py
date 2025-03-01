@@ -40,7 +40,6 @@ class RevenueStatsView(APIView):
     
         labels = [f"{item['month']}/{item['year']}" for item in revenue_stats]
         data = [item['revenue'] for item in revenue_stats]
-        
         return Response({"labels": labels, "data": data})
 
 
@@ -185,11 +184,7 @@ class TopUsersByOrdersView(APIView):
             })
             # Lấy danh sách các tháng có dữ liệu
         all_months = sorted(grouped_data.keys())  # Chỉ các tháng có dữ liệu
-        # Chuẩn bị dữ liệu trả về
-        #data = [{"month": month, "users": users} for month, users in grouped_data.items()]
-        #return Response(data)
-        #labels = all_months
-        #datasets = []
+        
         # Tổng hợp dữ liệu cho từng người dùng
         all_users = {item['username'] for sublist in grouped_data.values() for item in sublist}
         user_data = {user: [0] * len(all_months) for user in all_users}

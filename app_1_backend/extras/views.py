@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 
-# Create your views here.
 class AddAddress(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -73,13 +72,13 @@ class DeleteAddress(APIView):
 
                     if other_address.exists():
                         new_default_address = other_address.first()
-                        new_default_address.isDefault = True;
-                        new_default_address.save();
+                        new_default_address.isDefault = True
+                        new_default_address.save()
                     else:
 
                         return Response({'message': 'Bạn không thể xóa một địa chỉ mặc định mà không có địa chỉ nào khác'})
         
-                    address_item.delete();
+                    address_item.delete()
         
                     return Response(status=status.HTTP_200_OK)
                 
@@ -99,10 +98,10 @@ class SetDefaultAddress(APIView):
             user = request.user
             address = models.Address.objects.get(id=address_id)
 
-            models.Address.objects.filter(userId=user).update(isDefault=False);
+            models.Address.objects.filter(userId=user).update(isDefault=False)
         
-            address.isDefault = True;
-            address.save();
+            address.isDefault = True
+            address.save()
 
             return Response(status=status.HTTP_200_OK)
 

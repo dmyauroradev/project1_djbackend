@@ -24,7 +24,7 @@ class ToggleWishList(APIView):
         
         
         try : 
-            product = models.Product.objects.get(id=product_id);
+            product = models.Product.objects.get(id=product_id)
         except models.Product.DoesNotExist:
             return Response({'message': 'Product not found'}, status = status.HTTP_404_BAD_REQUEST)
         
